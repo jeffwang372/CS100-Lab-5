@@ -4,6 +4,8 @@
 #include <cstring>
 #include <iostream>
 using namespace std;
+#include <string>
+
 
 
 class Select
@@ -27,7 +29,7 @@ class Select_Column: public Select
 protected:
     int column;
 public:
-    //Select_Column() {
+    // Select_Column() {
 //	}
     Select_Column(const Spreadsheet* sheet, const std::string& name)
     {
@@ -57,6 +59,8 @@ std::string toFind;
 const Spreadsheet* thisSheet;
 
 
+	
+
 std::string get_toFind() {
 	return this->toFind;
 }
@@ -65,24 +69,20 @@ Select_Contains(const Spreadsheet* sheet, const std::string& name, const std::st
 	this->toFind = toFind;
 	thisSheet = sheet;
 	cmn = name;	
-}
+}//end constructor
 
-//end constructor
+~Select_Contains() = default;
 
 virtual bool select( const std::string& s ) const
 {
-        for(unsigned int i = 0; i < s.length(); ++i) {
-
-                if( s.find(toFind) != std::string::npos) {
-
-                        return true;
+                if(s.find(toFind) != std::string::npos) {
+ 		                       return true;
 
                 }//check if column is data we are looking for
 
                 else {
                         return false;
                 }
-        }
 
 }//end select_contains function
 };
@@ -98,22 +98,26 @@ class Select_Not: public Select_Contains
 protected:
 
 Select_Contains* localselect;
+string notToFind;
 
 public:
 
 Select_Not(Select_Contains* selectptr) : Select_Contains(selectptr->thisSheet, selectptr->cmn, selectptr->toFind)  {
         localselect = selectptr;
-
+	notToFind = selectptr->get_toFind();
 }
 
 //end constructor
 
+
+~Select_Not(){
+	delete localselect;
+
+}//end destructor 
+
 virtual bool select(const std::string& s) const
 {
-        for(unsigned int i = 0; i < s.length(); ++i) {
-		
                 if(localselect->select(s) == true) {
-
                         return false;
 
                 }//check if column is data we are looking for
@@ -121,81 +125,70 @@ virtual bool select(const std::string& s) const
                 else {
                         return true;
                 }
-        }
 
 
 }//end select_contains function
 };
 
-class Select_And: public Select_Contains
+class Select_And: public Select
 {
 
 protected:
 
-Select_Contains* localselect;
-Select_Contains* localselect2;
+Select* localselect = nullptr;
+Select* localselect2 = nullptr;
 
 public:
 
-Select_And(Select_Contains* selectptr, Select_Contains* selectptr2) : Select_Contains(selectptr->thisSheet, selectptr->cmn, selectptr->toFind)  {
+Select_And(Select* selectptr, Select* selectptr2){// : Select_Contains(selectptr->thisSheet, selectptr->cmn, selectptr->toFind)  {
         localselect = selectptr;
-	localselect2 = selectptr;
+	localselect2 = selectptr2;
 
-}
+}//end constructor
 
-//end constructor
 
-virtual bool select(const std::string& s) const
+~Select_And(){
+
+	delete localselect;
+	delete localselect2;
+
+}//end destructor
+
+virtual bool select(const Spreadsheet* sheet, int row) const 
 {
-        for(unsigned int i = 0; i < s.length(); ++i) {
-		
-                if((localselect->select(s) == true)&&(localselect2->select(s) == true) ) {
-
-                        return true;
-
-                }//check if column is data we are looking for
-
-                else {
-                        return false;
-                }
-        }
-
+			
+	return localselect->select(sheet,row) && localselect2->select(sheet,row);
 
 }//end select_contains function
 };
 
-class Select_Or: public Select_Contains
+class Select_Or: public Select
 {
 
 protected:
 
-Select_Contains* localselect;
-Select_Contains* localselect2;
+Select* localselect;
+Select* localselect2;
 
 public:
 
-Select_Or(Select_Contains* selectptr, Select_Contains* selectptr2) : Select_Contains(selectptr->thisSheet, selectptr->cmn, selectptr->toFind)  {
+Select_Or(Select* selectptr, Select* selectptr2){// : Select_Contains(selectptr->thisSheet, selectptr->cmn, selectptr->toFind)  {
         localselect = selectptr;
-	localselect2 = selectptr;
+	localselect2 = selectptr2;
 
-}
+}//end constructor
 
-//end constructor
+~Select_Or(){
 
-virtual bool select(const std::string& s) const
+	delete localselect;
+	delete localselect2;
+
+}//end destructor
+
+virtual bool select(const Spreadsheet* sheet, int row) const
 {
-        for(unsigned int i = 0; i < s.length(); ++i) {
 		
-                if((localselect->select(s) == true)||(localselect2->select(s) == true) ) {
-
-                        return true;
-
-                }//check if column is data we are looking for
-
-                else {
-                        return false;
-                }
-        }
+	return localselect->select(sheet,row) || localselect2->select(sheet,row);
 
 
 }//end select_contains function
