@@ -16,7 +16,6 @@ int main(int argc, char* argv[])
     sheet.add_row({"David","Dole","22","electrical engineering"});
     sheet.add_row({"Dominick","Dole","22","communications"});
     sheet.add_row({"George","Genius","9","astrophysics"});
-
     sheet.print_selection(std::cout);
     std::cout << std::endl;
 
@@ -24,14 +23,17 @@ int main(int argc, char* argv[])
     sheet.print_selection(std::cout);
     std::cout << std::endl;
 
+
+
     sheet.set_selection(
          new Select_And(
              new Select_Contains(&sheet,"Last","Dole"),
-             new Select_Not(
+            new Select_Not(
                  new Select_Contains(&sheet,"First","v"))));
 
     sheet.print_selection(std::cout);
     std::cout << std::endl;
+
 
 	sheet.set_selection(
          new Select_Or(
@@ -42,6 +44,5 @@ int main(int argc, char* argv[])
 
 	sheet.print_selection(std::cout);
     std::cout << std::endl;
-
     return 0;
 }
