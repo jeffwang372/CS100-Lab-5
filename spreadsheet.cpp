@@ -45,16 +45,27 @@ int Spreadsheet::get_column_by_name(const std::string& name) const
 
 
 void Spreadsheet::print_selection(std::ostream& out) const{
-	
+	if(select == nullptr) {
+		for(unsigned int i =0; i < data.size(); ++i) {
+
+			for(unsigned int j = 0; j < 4; ++j){
+                 	       out << data.at(i).at(j) << " " ;
+               		}
+			out << endl;
+		}
+		return;
+	}	
+
+
 	for(unsigned int i =0; i < data.size(); ++i)
 	{
 		if( select->select( this, i ) ){
-			for(unsigned int j = 0; j < 4; ++j){
-				out << data.at(i).at(j);
+			 for(unsigned int j = 0; j < 4; ++j){
+				out << data.at(i).at(j) << " ";
 			}//print each string 
 
 			out <<  endl;
-		}//end if 	
+		} //end if 	
 
 
 	}//for to go through spreadsheet

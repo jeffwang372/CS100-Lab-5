@@ -24,6 +24,8 @@ class Select_Column: public Select
 protected:
     int column;
 public:
+    Select_Column() {
+	}
     Select_Column(const Spreadsheet* sheet, const std::string& name)
     {
         column = sheet->get_column_by_name(name);
@@ -37,5 +39,91 @@ public:
     // Derived classes can instead implement this simpler interface.
     virtual bool select(const std::string& s) const = 0;
 };
+
+
+
+
+class Select_Contains: public Select_Column
+{
+
+protected:
+
+std::string cmn;
+std::string toFind;
+const Spreadsheet* thisSheet;
+
+public:
+std::string get_toFind() {
+	return this->toFind;
+}
+Select_Contains(const Spreadsheet* sheet, const std::string& name, const std::string& toFind ) : Select_Column(sheet, name) {
+	this->toFind = toFind;
+	thisSheet = sheet;
+	cmn = name;	
+}
+
+//end constructor
+
+virtual bool select( const std::string& s ) const
+{
+        for(unsigned int i = 0; i < s.length(); ++i) {
+
+                if( s.find(toFind) != std::string::npos) {
+
+                        return true;
+
+                }//check if column is data we are looking for
+
+                else {
+                        return false;
+                }
+        }
+
+}//end select_contains function
+};
+
+
+
+
+
+
+class Select_Not: public Select_Column
+{
+
+protected:
+
+Select_Contains* localselect;
+
+public:
+
+Select_Not(Select_Contains* selectptr)  {
+        localselect = selectptr;
+
+}
+
+//end constructor
+
+virtual bool select(const std::string& s) const
+{
+        for(unsigned int i = 0; i < s.length(); ++i) {
+
+                if( s.find(localselect->get_toFind()) != std::string::npos) {
+
+                        return false;
+
+                }//check if column is data we are looking for
+
+                else {
+                        return true;
+                }
+        }
+
+
+}//end select_contains function
+};
+
+
+
+
 
 #endif //__SELECT_HPP__
