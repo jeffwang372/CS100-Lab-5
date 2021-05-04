@@ -3,6 +3,8 @@
 
 #include <algorithm>
 #include <iostream>
+#include <fstream>
+using namespace std;
 
 Spreadsheet::~Spreadsheet()
 {
@@ -40,3 +42,24 @@ int Spreadsheet::get_column_by_name(const std::string& name) const
             return i;
     return -1;
 }
+
+
+void Spreadsheet::print_selection(std::ostream& out) const{
+	
+	for(unsigned int i =0; i < data.size(); ++i)
+	{
+		if( select->select( this, i ) ){
+			for(unsigned int j = 0; j < 4; ++j){
+				out << data.at(i).at(j);
+			}//print each string 
+
+			out <<  endl;
+		}//end if 	
+
+
+	}//for to go through spreadsheet
+
+
+
+}//end print selection
+
