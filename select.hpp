@@ -2,6 +2,9 @@
 #define __SELECT_HPP__
 
 #include <cstring>
+#include <iostream>
+using namespace std;
+
 
 class Select
 {
@@ -24,8 +27,8 @@ class Select_Column: public Select
 protected:
     int column;
 public:
-    Select_Column() {
-	}
+    //Select_Column() {
+//	}
     Select_Column(const Spreadsheet* sheet, const std::string& name)
     {
         column = sheet->get_column_by_name(name);
@@ -48,14 +51,16 @@ class Select_Contains: public Select_Column
 
 protected:
 
+public:
 std::string cmn;
 std::string toFind;
 const Spreadsheet* thisSheet;
 
-public:
+
 std::string get_toFind() {
 	return this->toFind;
 }
+
 Select_Contains(const Spreadsheet* sheet, const std::string& name, const std::string& toFind ) : Select_Column(sheet, name) {
 	this->toFind = toFind;
 	thisSheet = sheet;
@@ -87,7 +92,7 @@ virtual bool select( const std::string& s ) const
 
 
 
-class Select_Not: public Select_Column
+class Select_Not: public Select_Contains
 {
 
 protected:
@@ -96,7 +101,7 @@ Select_Contains* localselect;
 
 public:
 
-Select_Not(Select_Contains* selectptr)  {
+Select_Not(Select_Contains* selectptr) : Select_Contains(selectptr->thisSheet, selectptr->cmn, selectptr->toFind)  {
         localselect = selectptr;
 
 }
@@ -106,8 +111,8 @@ Select_Not(Select_Contains* selectptr)  {
 virtual bool select(const std::string& s) const
 {
         for(unsigned int i = 0; i < s.length(); ++i) {
-
-                if( s.find(localselect->get_toFind()) != std::string::npos) {
+		
+                if(localselect->select(s) == true) {
 
                         return false;
 
@@ -122,8 +127,78 @@ virtual bool select(const std::string& s) const
 }//end select_contains function
 };
 
+class Select_And: public Select_Contains
+{
+
+protected:
+
+Select_Contains* localselect;
+Select_Contains* localselect2;
+
+public:
+
+Select_And(Select_Contains* selectptr, Select_Contains* selectptr2) : Select_Contains(selectptr->thisSheet, selectptr->cmn, selectptr->toFind)  {
+        localselect = selectptr;
+	localselect2 = selectptr;
+
+}
+
+//end constructor
+
+virtual bool select(const std::string& s) const
+{
+        for(unsigned int i = 0; i < s.length(); ++i) {
+		
+                if((localselect->select(s) == true)&&(localselect2->select(s) == true) ) {
+
+                        return true;
+
+                }//check if column is data we are looking for
+
+                else {
+                        return false;
+                }
+        }
 
 
+}//end select_contains function
+};
 
+class Select_Or: public Select_Contains
+{
+
+protected:
+
+Select_Contains* localselect;
+Select_Contains* localselect2;
+
+public:
+
+Select_Or(Select_Contains* selectptr, Select_Contains* selectptr2) : Select_Contains(selectptr->thisSheet, selectptr->cmn, selectptr->toFind)  {
+        localselect = selectptr;
+	localselect2 = selectptr;
+
+}
+
+//end constructor
+
+virtual bool select(const std::string& s) const
+{
+        for(unsigned int i = 0; i < s.length(); ++i) {
+		
+                if((localselect->select(s) == true)||(localselect2->select(s) == true) ) {
+
+                        return true;
+
+                }//check if column is data we are looking for
+
+                else {
+                        return false;
+                }
+        }
+
+
+}//end select_contains function
+};
 
 #endif //__SELECT_HPP__
